@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}{{ producto.nombre }} — Sistema de Inventario{% endblock %}
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+        <h1>{{ producto.nombre }} {% if producto.stock_bajo %}<span class="badge badge-danger">Stock bajo</span>{% endif %}</h1>
+        <p class="subtitle">SKU {{ producto.sku }} · {{ producto.categoria.nombre }} · {{ producto.proveedor.nombre }}</p>
+    </div>
+    {% if usuario.rol.value == 'administrador' %}
+    <a href="/productos/{{ producto.id }}/editar" class="btn btn-secondary">Editar producto</a>
+    {% endif %}
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card"><div class="stat-value">{{ producto.stock_actual }}</div><div class="stat-label">Stock actual</div></div>
+    <div class="stat-card"><div class="stat-value">{{ producto.stock_minimo }}</div><div class="stat-label">Stock mínimo</div></div>
+    <div class="stat-card"><div class="stat-value">${{ "%.2f"|format(producto.precio) }}</div><div class="stat-label">Precio unitario</div></div>
+    <div class="stat-card"><div class="stat-value">${{ "%.2f"|format(producto.valor_total) }}</div><div class="stat-label">Valor en inventario</div></div>
+</div>
+
+<div class="panel">
+    <h2 style="margin-top:0">Registrar movimiento</h2>
+    <form method="post" action="/movimientos/nuevo">
+        <input type="hidden" name="producto_id" value="{{ producto.id }}">
+        <input type="hidden" name="volver_a" value="/productos/{{ producto.id }}">
+        <div class="form-grid">
+            <div class="form-field">
+                <label>Tipo *</label>
+                <select name="tipo" required>
+                    <option value="entrada">Entrada</option>
+                    <option value="salida">Salida</option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label>Cantidad *</label>
+                <input type="number" name="cantidad" min="1" step="1" required>
+            </div>
+            <div class="form-field" style="grid-column: 1 / -1;">
+                <label>Motivo *</label>
+                <input type="text" name="motivo" required placeholder="Ej. Compra a proveedor, ajuste, venta...">
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn">Registrar movimiento</button>
+        </div>
+    </form>
+</div>
+
+<div class="panel">
+    <h2 style="margin-top:0">Historial de movimientos</h2>
+    <form class="filters" method="get" action="/productos/{{ producto.id }}">
+        <div class="form-field">
+            <label>Desde</label>
+            <input type="date" name="fecha_desde" value="{{ fecha_desde }}">
+        </div>
+        <div class="form-field">
+            <label>Hasta</label>
+            <input type="date" name="fecha_hasta" value="{{ fecha_hasta }}">
+        </div>
+        <div class="form-field">
+            <label>Tipo</label>
+            <select name="tipo">
+                <option value="" {% if not tipo %}selected{% endif %}>Todos</option>
+                <option value="entrada" {% if tipo == 'entrada' %}selected{% endif %}>Entrada</option>
+                <option value="salida" {% if tipo == 'salida' %}selected{% endif %}>Salida</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-secondary">Filtrar</button>
+        <a href="/productos/{{ producto.id }}" class="btn btn-secondary">Limpiar</a>
+    </form>
+
+    {% if movimientos %}
+    <table>
+        <thead><tr><th>Fecha</th><th>Tipo</th><th>Cantidad</th><th>Motivo</th><th>Usuario</th><th>Saldo resultante</th></tr></thead>
+        <tbody>
+        {% for m in movimientos %}
+            <tr>
+                <td>{{ m.fecha.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    {% if m.tipo.value == 'entrada' %}<span class="badge badge-success">Entrada</span>
+                    {% else %}<span class="badge badge-warning">Salida</span>{% endif %}
+                </td>
+                <td>{{ m.cantidad }}</td>
+                <td>{{ m.motivo }}</td>
+                <td>{{ m.usuario.nombre if m.usuario else '—' }}</td>
+                <td>{{ m.saldo_resultante }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">Sin movimientos registrados.</div>
+    {% endif %}
+</div>
+{% endblock %}

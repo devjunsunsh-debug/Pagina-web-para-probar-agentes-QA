@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Buscar "{{ q }}" — Sistema de Inventario{% endblock %}
+{% block content %}
+<h1>Resultados de búsqueda</h1>
+<p class="subtitle">{{ 'Mostrando coincidencias para "' ~ q ~ '"' if q else 'Escribe un término en el buscador del encabezado.' }}</p>
+
+{% if q %}
+    {% if hay_resultados %}
+        {% if productos %}
+        <div class="search-results-group panel">
+            <h3>Productos</h3>
+            <table>
+                <thead><tr><th>Nombre</th><th>SKU</th><th>Stock</th></tr></thead>
+                <tbody>
+                {% for p in productos %}
+                    <tr>
+                        <td><a href="/productos/{{ p.id }}">{{ p.nombre }}</a></td>
+                        <td>{{ p.sku }}</td>
+                        <td>{{ p.stock_actual }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if proveedores %}
+        <div class="search-results-group panel">
+            <h3>Proveedores</h3>
+            <table>
+                <thead><tr><th>Nombre</th><th>Contacto</th></tr></thead>
+                <tbody>
+                {% for p in proveedores %}
+                    <tr>
+                        <td>
+                            {% if usuario.rol.value == 'administrador' %}
+                            <a href="/proveedores?editar={{ p.id }}">{{ p.nombre }}</a>
+                            {% else %}
+                            {{ p.nombre }}
+                            {% endif %}
+                        </td>
+                        <td>{{ p.contacto or '—' }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="empty-state">No se encontraron resultados para '{{ q }}'.</div>
+    {% endif %}
+{% endif %}
+{% endblock %}

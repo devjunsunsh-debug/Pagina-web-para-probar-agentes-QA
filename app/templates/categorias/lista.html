@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Categorías — Sistema de Inventario{% endblock %}
+{% block content %}
+<h1>Categorías</h1>
+<p class="subtitle">Clasifica el catálogo de productos.</p>
+
+{% set editar_id = request.query_params.get('editar', '') | int(0) %}
+{% set categoria_editar = None %}
+{% for c in categorias %}{% if c.id == editar_id %}{% set categoria_editar = c %}{% endif %}{% endfor %}
+
+<div class="panel">
+    <h2 style="margin-top:0">{{ 'Editar categoría' if categoria_editar else 'Nueva categoría' }}</h2>
+    <form method="post" action="{{ '/categorias/' ~ categoria_editar.id ~ '/editar' if categoria_editar else '/categorias' }}">
+        <div class="form-grid">
+            <div class="form-field">
+                <label>Nombre *</label>
+                <input type="text" name="nombre" required value="{{ categoria_editar.nombre if categoria_editar else '' }}">
+            </div>
+            <div class="form-field">
+                <label>Descripción</label>
+                <input type="text" name="descripcion" value="{{ categoria_editar.descripcion or '' if categoria_editar else '' }}">
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn">{{ 'Guardar cambios' if categoria_editar else 'Crear categoría' }}</button>
+            {% if categoria_editar %}<a href="/categorias" class="btn btn-secondary">Cancelar</a>{% endif %}
+        </div>
+    </form>
+</div>
+
+<div class="panel">
+    <form class="filters" method="get" action="/categorias">
+        <div class="form-field">
+            <label>Buscar por nombre</label>
+            <input type="text" name="q" value="{{ q }}" placeholder="Ej. Bebidas">
+        </div>
+        <div class="form-field">
+            <label>Orden</label>
+            <select name="orden">
+                <option value="asc" {% if orden == 'asc' %}selected{% endif %}>A → Z</option>
+                <option value="desc" {% if orden == 'desc' %}selected{% endif %}>Z → A</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-secondary">Filtrar</button>
+    </form>
+
+    {% if categorias %}
+    <table>
+        <thead>
+            <tr><th>Nombre</th><th>Descripción</th><th># Productos</th><th></th></tr>
+        </thead>
+        <tbody>
+        {% for c in categorias %}
+            <tr>
+                <td>{{ c.nombre }}</td>
+                <td>{{ c.descripcion or '—' }}</td>
+                <td>{{ c.productos | length }}</td>
+                <td>
+                    <a href="/categorias?editar={{ c.id }}" class="btn btn-secondary btn-sm">Editar</a>
+                    <form class="inline" method="post" action="/categorias/{{ c.id }}/eliminar" onsubmit="return confirm('¿Eliminar la categoría {{ c.nombre }}?');">
+                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No hay categorías registradas todavía.</div>
+    {% endif %}
+</div>
+{% endblock %}

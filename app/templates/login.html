@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Iniciar sesión — Sistema de Inventario{% endblock %}
+{% block content %}
+<div class="login-wrapper">
+    <div class="login-box panel">
+        <h1>📦 Sistema de Inventario</h1>
+        <p class="subtitle">Inicia sesión para continuar</p>
+
+        <form method="post" action="/login">
+            <div class="form-grid single">
+                <div class="form-field">
+                    <label>Email</label>
+                    <input type="email" name="email" required value="{{ email or '' }}">
+                </div>
+                <div class="form-field">
+                    <label>Contraseña</label>
+                    <input type="password" name="password" required>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn">Iniciar sesión</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Sistema de Inventario{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<p class="subtitle">Resumen general del inventario.</p>
+
+{% if hay_datos %}
+<div class="stats-grid">
+    <a href="/productos?estado=activos" class="stat-card">
+        <div class="stat-value">{{ total_productos }}</div>
+        <div class="stat-label">Productos activos</div>
+    </a>
+    <a href="/reportes" class="stat-card">
+        <div class="stat-value">${{ "%.2f"|format(valor_total) }}</div>
+        <div class="stat-label">Valor total del inventario</div>
+    </a>
+    <a href="/alertas" class="stat-card">
+        <div class="stat-value">{{ stock_bajo_count }}</div>
+        <div class="stat-label">Productos en stock bajo</div>
+    </a>
+</div>
+
+<div class="panel">
+    <h2 style="margin-top:0">Últimos movimientos</h2>
+    {% if ultimos_movimientos %}
+    <table>
+        <thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Usuario</th></tr></thead>
+        <tbody>
+        {% for m in ultimos_movimientos %}
+            <tr>
+                <td>{{ m.fecha.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td><a href="/productos/{{ m.producto_id }}">{{ m.producto.nombre }}</a></td>
+                <td>
+                    {% if m.tipo.value == 'entrada' %}<span class="badge badge-success">Entrada</span>
+                    {% else %}<span class="badge badge-warning">Salida</span>{% endif %}
+                </td>
+                <td>{{ m.cantidad }}</td>
+                <td>{{ m.usuario.nombre if m.usuario else '—' }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">Todavía no hay movimientos registrados.</div>
+    {% endif %}
+</div>
+{% else %}
+<div class="panel empty-state">
+    <p>Todavía no hay productos en el sistema.</p>
+    {% if usuario.rol.value == 'administrador' %}
+    <a href="/productos/nuevo" class="btn">Crear el primer producto</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

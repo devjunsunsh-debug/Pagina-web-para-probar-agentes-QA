@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Productos — Sistema de Inventario{% endblock %}
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+        <h1>Productos</h1>
+        <p class="subtitle">Catálogo central del inventario.</p>
+    </div>
+    {% if usuario.rol.value == 'administrador' %}
+    <a href="/productos/nuevo" class="btn">+ Nuevo producto</a>
+    {% endif %}
+</div>
+
+<div class="panel">
+    <form class="filters" method="get" action="/productos">
+        <div class="form-field">
+            <label>Buscar (nombre o SKU)</label>
+            <input type="text" name="q" value="{{ q }}">
+        </div>
+        <div class="form-field">
+            <label>Categoría</label>
+            <select name="categoria_id">
+                <option value="">Todas</option>
+                {% for c in categorias %}
+                <option value="{{ c.id }}" {% if categoria_id == c.id|string %}selected{% endif %}>{{ c.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-field">
+            <label>Proveedor</label>
+            <select name="proveedor_id">
+                <option value="">Todos</option>
+                {% for p in proveedores %}
+                <option value="{{ p.id }}" {% if proveedor_id == p.id|string %}selected{% endif %}>{{ p.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-field">
+            <label>Estado</label>
+            <select name="estado">
+                <option value="todos" {% if estado == 'todos' %}selected{% endif %}>Todos</option>
+                <option value="activos" {% if estado == 'activos' %}selected{% endif %}>Activos</option>
+                <option value="inactivos" {% if estado == 'inactivos' %}selected{% endif %}>Inactivos</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-secondary">Filtrar</button>
+    </form>
+
+    {% if productos %}
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th><th>SKU</th><th>Categoría</th><th>Proveedor</th>
+                <th>Precio</th><th>Stock</th><th>Estado</th><th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for p in productos %}
+            <tr>
+                <td><a href="/productos/{{ p.id }}">{{ p.nombre }}</a></td>
+                <td>{{ p.sku }}</td>
+                <td>{{ p.categoria.nombre }}</td>
+                <td>{{ p.proveedor.nombre }}</td>
+                <td>${{ "%.2f"|format(p.precio) }}</td>
+                <td>
+                    {{ p.stock_actual }}
+                    {% if p.stock_bajo %}<span class="badge badge-danger">Stock bajo</span>{% endif %}
+                </td>
+                <td>
+                    {% if p.activo %}<span class="badge badge-success">Activo</span>
+                    {% else %}<span class="badge badge-muted">Inactivo</span>{% endif %}
+                </td>
+                <td>
+                    {% if usuario.rol.value == 'administrador' %}
+                    <a href="/productos/{{ p.id }}/editar" class="btn btn-secondary btn-sm">Editar</a>
+                    <form class="inline" method="post" action="/productos/{{ p.id }}/eliminar" onsubmit="return confirm('¿Eliminar el producto {{ p.nombre }}?');">
+                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No se encontraron productos con estos filtros.</div>
+    {% endif %}
+</div>
+{% endblock %}

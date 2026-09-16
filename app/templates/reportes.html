@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Reporte de inventario — Sistema de Inventario{% endblock %}
+{% block content %}
+<h1>Reporte de inventario</h1>
+<p class="subtitle">Estado actual del inventario, exportable a CSV.</p>
+
+<div class="panel">
+    <form class="filters" method="get" action="/reportes">
+        <div class="form-field">
+            <label>Categoría</label>
+            <select name="categoria_id">
+                <option value="">Todas</option>
+                {% for c in categorias %}
+                <option value="{{ c.id }}" {% if categoria_id == c.id|string %}selected{% endif %}>{{ c.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-field">
+            <label>Proveedor</label>
+            <select name="proveedor_id">
+                <option value="">Todos</option>
+                {% for p in proveedores %}
+                <option value="{{ p.id }}" {% if proveedor_id == p.id|string %}selected{% endif %}>{{ p.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-secondary">Filtrar</button>
+        <a href="/reportes/exportar?categoria_id={{ categoria_id }}&proveedor_id={{ proveedor_id }}" class="btn">⬇ Exportar CSV</a>
+    </form>
+
+    {% if productos %}
+    <table>
+        <thead><tr><th>Producto</th><th>SKU</th><th>Categoría</th><th>Proveedor</th><th>Stock</th><th>Stock mín.</th><th>Precio</th><th>Valor total</th></tr></thead>
+        <tbody>
+        {% for p in productos %}
+            <tr>
+                <td><a href="/productos/{{ p.id }}">{{ p.nombre }}</a></td>
+                <td>{{ p.sku }}</td>
+                <td>{{ p.categoria.nombre }}</td>
+                <td>{{ p.proveedor.nombre }}</td>
+                <td>{{ p.stock_actual }}</td>
+                <td>{{ p.stock_minimo }}</td>
+                <td>${{ "%.2f"|format(p.precio) }}</td>
+                <td>${{ "%.2f"|format(p.valor_total) }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr><td colspan="7" style="text-align:right; font-weight:600;">Total general:</td><td style="font-weight:700;">${{ "%.2f"|format(valor_total) }}</td></tr>
+        </tfoot>
+    </table>
+    {% else %}
+    <div class="empty-state">No hay productos que coincidan con estos filtros.</div>
+    {% endif %}
+</div>
+{% endblock %}

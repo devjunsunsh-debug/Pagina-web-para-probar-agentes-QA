@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Proveedores — Sistema de Inventario{% endblock %}
+{% block content %}
+<h1>Proveedores</h1>
+<p class="subtitle">Empresas o personas que abastecen productos al inventario.</p>
+
+{% set editar_id = request.query_params.get('editar', '') | int(0) %}
+{% set proveedor_editar = None %}
+{% for p in proveedores %}{% if p.id == editar_id %}{% set proveedor_editar = p %}{% endif %}{% endfor %}
+
+<div class="panel">
+    <h2 style="margin-top:0">{{ 'Editar proveedor' if proveedor_editar else 'Nuevo proveedor' }}</h2>
+    <form method="post" action="{{ '/proveedores/' ~ proveedor_editar.id ~ '/editar' if proveedor_editar else '/proveedores' }}">
+        <div class="form-grid">
+            <div class="form-field">
+                <label>Nombre *</label>
+                <input type="text" name="nombre" required value="{{ proveedor_editar.nombre if proveedor_editar else '' }}">
+            </div>
+            <div class="form-field">
+                <label>Contacto</label>
+                <input type="text" name="contacto" value="{{ proveedor_editar.contacto or '' if proveedor_editar else '' }}">
+            </div>
+            <div class="form-field">
+                <label>Teléfono</label>
+                <input type="text" name="telefono" value="{{ proveedor_editar.telefono or '' if proveedor_editar else '' }}">
+            </div>
+            <div class="form-field">
+                <label>Email</label>
+                <input type="email" name="email" value="{{ proveedor_editar.email or '' if proveedor_editar else '' }}">
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn">{{ 'Guardar cambios' if proveedor_editar else 'Crear proveedor' }}</button>
+            {% if proveedor_editar %}<a href="/proveedores" class="btn btn-secondary">Cancelar</a>{% endif %}
+        </div>
+    </form>
+</div>
+
+<div class="panel">
+    <form class="filters" method="get" action="/proveedores">
+        <div class="form-field">
+            <label>Buscar por nombre</label>
+            <input type="text" name="q" value="{{ q }}">
+        </div>
+        <div class="form-field">
+            <label>Estado</label>
+            <select name="estado">
+                <option value="todos" {% if estado == 'todos' %}selected{% endif %}>Todos</option>
+                <option value="activos" {% if estado == 'activos' %}selected{% endif %}>Activos</option>
+                <option value="inactivos" {% if estado == 'inactivos' %}selected{% endif %}>Inactivos</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-secondary">Filtrar</button>
+    </form>
+
+    {% if proveedores %}
+    <table>
+        <thead>
+            <tr><th>Nombre</th><th>Contacto</th><th>Teléfono</th><th>Email</th><th># Productos activos</th><th>Estado</th><th></th></tr>
+        </thead>
+        <tbody>
+        {% for p in proveedores %}
+            <tr>
+                <td>{{ p.nombre }}</td>
+                <td>{{ p.contacto or '—' }}</td>
+                <td>{{ p.telefono or '—' }}</td>
+                <td>{{ p.email or '—' }}</td>
+                <td>{{ p.productos | selectattr('activo') | list | length }}</td>
+                <td>
+                    {% if p.activo %}<span class="badge badge-success">Activo</span>
+                    {% else %}<span class="badge badge-muted">Inactivo</span>{% endif %}
+                </td>
+                <td>
+                    <a href="/proveedores?editar={{ p.id }}" class="btn btn-secondary btn-sm">Editar</a>
+                    <form class="inline" method="post" action="/proveedores/{{ p.id }}/estado">
+                        <button type="submit" class="btn btn-secondary btn-sm">{{ 'Desactivar' if p.activo else 'Activar' }}</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No hay proveedores registrados todavía.</div>
+    {% endif %}
+</div>
+{% endblock %}

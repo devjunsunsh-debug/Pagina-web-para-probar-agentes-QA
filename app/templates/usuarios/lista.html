@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Usuarios — Sistema de Inventario{% endblock %}
+{% block content %}
+<h1>Usuarios</h1>
+<p class="subtitle">Solo un administrador puede crear usuarios y asignar roles.</p>
+
+<div class="panel">
+    <h2 style="margin-top:0">Nuevo usuario</h2>
+    <form method="post" action="/usuarios">
+        <div class="form-grid">
+            <div class="form-field">
+                <label>Nombre *</label>
+                <input type="text" name="nombre" required>
+            </div>
+            <div class="form-field">
+                <label>Email *</label>
+                <input type="email" name="email" required>
+            </div>
+            <div class="form-field">
+                <label>Contraseña *</label>
+                <input type="password" name="password" required minlength="6">
+            </div>
+            <div class="form-field">
+                <label>Rol *</label>
+                <select name="rol" required>
+                    <option value="operador">Operador</option>
+                    <option value="administrador">Administrador</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn">Crear usuario</button>
+        </div>
+    </form>
+</div>
+
+<div class="panel">
+    <table>
+        <thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Estado</th><th>Cambiar rol</th></tr></thead>
+        <tbody>
+        {% for u in usuarios %}
+            <tr>
+                <td>{{ u.nombre }}</td>
+                <td>{{ u.email }}</td>
+                <td><span class="badge {{ 'badge-success' if u.rol.value == 'administrador' else 'badge-muted' }}">{{ u.rol.value }}</span></td>
+                <td>
+                    {% if u.bloqueado_hasta and u.bloqueado_hasta > now %}
+                    <span class="badge badge-danger">Bloqueado</span>
+                    {% else %}
+                    <span class="badge badge-success">Activo</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <form class="inline" method="post" action="/usuarios/{{ u.id }}/rol">
+                        <select name="rol" onchange="this.form.submit()">
+                            <option value="operador" {% if u.rol.value == 'operador' %}selected{% endif %}>Operador</option>
+                            <option value="administrador" {% if u.rol.value == 'administrador' %}selected{% endif %}>Administrador</option>
+                        </select>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

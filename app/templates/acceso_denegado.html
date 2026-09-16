@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Acceso denegado — Sistema de Inventario{% endblock %}
+{% block content %}
+<div class="panel empty-state">
+    <h1>🚫 Acceso denegado</h1>
+    <p>{{ detalle or 'No tienes permisos para ver esta sección.' }}</p>
+    <a href="/" class="btn">Volver al dashboard</a>
+</div>
+{% endblock %}
