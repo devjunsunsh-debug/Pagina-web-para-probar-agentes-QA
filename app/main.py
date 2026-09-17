@@ -15,6 +15,7 @@ from .auth import hash_password
 from .database import Base, SessionLocal, engine, get_db
 from .models import RolUsuario, Usuario
 from .routers import (
+    admin,
     auth_routes,
     busqueda,
     categorias,
@@ -49,6 +50,7 @@ app.include_router(movimientos.router)
 app.include_router(reportes.router)
 app.include_router(usuarios.router)
 app.include_router(busqueda.router)
+app.include_router(admin.router)
 
 
 DEFAULT_ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "admin@inventario.local")
@@ -100,3 +102,4 @@ async def acceso_denegado_handler(request: Request, exc: HTTPException):
 def salud():
     """Endpoint simple para healthchecks (Render y similares)."""
     return {"status": "ok"}
+    

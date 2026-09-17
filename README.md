@@ -1,13 +1,12 @@
 # Sistema de Inventario (app de prueba para agentes QA)
 
-Aplicación web de inventario, **ficticia y sin ninguna relación con Sunshine Bouquet**, construida como
-aplicación objetivo para validar el flujo de tus agentes QA: generación de test cases en Azure DevOps,
+Aplicación web de inventario, **ficticia y sin ninguna relación con producto real**, construida como
+aplicación objetivo para validar el flujo agentes QA: generación de test cases en Azure DevOps,
 ejecución automática con Playwright, y (a futuro) generación de manuales de usuario a partir de capturas.
 
-Implementa el backlog de 10 PBIs que ya tienes guardado en el proyecto de Claude
+Implementa el backlog de 10 PBIs que estan creados en Azure DevOps, en el proyecto QA-Agent_Azure_Web
 (`backlog-sistema-inventario.md`): categorías, proveedores, productos, movimientos de stock,
 historial, alertas de stock bajo, reporte exportable, dashboard, usuarios/roles y búsqueda global.
-
 ## Stack
 
 - FastAPI + Jinja2 (mismo patrón que QA-Agent-Web y QA-Agent-Azure-Personal)

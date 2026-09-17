@@ -24,9 +24,17 @@
     <h2 style="margin-top:0">Últimos movimientos</h2>
     {% if ultimos_movimientos %}
     <table>
-        <thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Usuario</th></tr></thead>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Producto</th>
+                <th>Tipo</th>
+                <th>Cantidad</th>
+                <th>Usuario</th>
+            </tr>
+        </thead>
         <tbody>
-        {% for m in ultimos_movimientos %}
+            {% for m in ultimos_movimientos %}
             <tr>
                 <td>{{ m.fecha.strftime('%Y-%m-%d %H:%M') }}</td>
                 <td><a href="/productos/{{ m.producto_id }}">{{ m.producto.nombre }}</a></td>
@@ -37,7 +45,7 @@
                 <td>{{ m.cantidad }}</td>
                 <td>{{ m.usuario.nombre if m.usuario else '—' }}</td>
             </tr>
-        {% endfor %}
+            {% endfor %}
         </tbody>
     </table>
     {% else %}
@@ -49,6 +57,9 @@
     <p>Todavía no hay productos en el sistema.</p>
     {% if usuario.rol.value == 'administrador' %}
     <a href="/productos/nuevo" class="btn">Crear el primer producto</a>
+    <form method="post" action="/admin/seed-demo" class="inline" style="margin-left:10px;">
+        <button type="submit" class="btn btn-secondary">Cargar datos de ejemplo</button>
+    </form>
     {% endif %}
 </div>
 {% endif %}
